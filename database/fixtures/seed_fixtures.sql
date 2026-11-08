@@ -1,22 +1,22 @@
 BEGIN;
 
 -- Create fixture users.
-INSERT INTO app_user (name, username)
+INSERT INTO app_user (name, username, password_hash, role)
 VALUES
-    ('Player 01', 'fixture_player_01'),
-    ('Player 02', 'fixture_player_02'),
-    ('Player 03', 'fixture_player_03'),
-    ('Player 04', 'fixture_player_04'),
-    ('Player 05', 'fixture_player_05'),
-    ('Player 06', 'fixture_player_06'),
-    ('Player 07', 'fixture_player_07'),
-    ('Player 08', 'fixture_player_08'),
-    ('Player 09', 'fixture_player_09'),
-    ('Player 10', 'fixture_player_10'),
-    ('Player 11', 'fixture_player_11'),
-    ('Player 12', 'fixture_player_12'),
-    ('Player 13', 'fixture_player_13'),
-    ('Player 14', 'fixture_player_14');
+    ('Oganizer 01', 'fixture_organizer_01', '$argon2id$v=19$m=65536,t=3,p=4$QOmwbDxAxj+O7rMMIrvjBQ$JN514/J3DmRVkkN7t7fia4QQYzoadDi4CQLzHj4TC0c', 'Organizer'),
+    ('Player 02', 'fixture_player_02', '$argon2id$v=19$m=65536,t=3,p=4$QOmwbDxAxj+O7rMMIrvjBQ$JN514/J3DmRVkkN7t7fia4QQYzoadDi4CQLzHj4TC0c', 'Player'),
+    ('Player 03', 'fixture_player_03', '$argon2id$v=19$m=65536,t=3,p=4$QOmwbDxAxj+O7rMMIrvjBQ$JN514/J3DmRVkkN7t7fia4QQYzoadDi4CQLzHj4TC0c', 'Player'),
+    ('Player 04', 'fixture_player_04', '$argon2id$v=19$m=65536,t=3,p=4$QOmwbDxAxj+O7rMMIrvjBQ$JN514/J3DmRVkkN7t7fia4QQYzoadDi4CQLzHj4TC0c', 'Player'),
+    ('Player 05', 'fixture_player_05', '$argon2id$v=19$m=65536,t=3,p=4$QOmwbDxAxj+O7rMMIrvjBQ$JN514/J3DmRVkkN7t7fia4QQYzoadDi4CQLzHj4TC0c', 'Player'),
+    ('Player 06', 'fixture_player_06', '$argon2id$v=19$m=65536,t=3,p=4$QOmwbDxAxj+O7rMMIrvjBQ$JN514/J3DmRVkkN7t7fia4QQYzoadDi4CQLzHj4TC0c', 'Player'),
+    ('Player 07', 'fixture_player_07', '$argon2id$v=19$m=65536,t=3,p=4$QOmwbDxAxj+O7rMMIrvjBQ$JN514/J3DmRVkkN7t7fia4QQYzoadDi4CQLzHj4TC0c', 'Player'),
+    ('Player 08', 'fixture_player_08', '$argon2id$v=19$m=65536,t=3,p=4$QOmwbDxAxj+O7rMMIrvjBQ$JN514/J3DmRVkkN7t7fia4QQYzoadDi4CQLzHj4TC0c', 'Player'),
+    ('Player 09', 'fixture_player_09', '$argon2id$v=19$m=65536,t=3,p=4$QOmwbDxAxj+O7rMMIrvjBQ$JN514/J3DmRVkkN7t7fia4QQYzoadDi4CQLzHj4TC0c', 'Player'),
+    ('Player 10', 'fixture_player_10', '$argon2id$v=19$m=65536,t=3,p=4$QOmwbDxAxj+O7rMMIrvjBQ$JN514/J3DmRVkkN7t7fia4QQYzoadDi4CQLzHj4TC0c', 'Player'),
+    ('Player 11', 'fixture_player_11', '$argon2id$v=19$m=65536,t=3,p=4$QOmwbDxAxj+O7rMMIrvjBQ$JN514/J3DmRVkkN7t7fia4QQYzoadDi4CQLzHj4TC0c', 'Player'),
+    ('Player 12', 'fixture_player_12', '$argon2id$v=19$m=65536,t=3,p=4$QOmwbDxAxj+O7rMMIrvjBQ$JN514/J3DmRVkkN7t7fia4QQYzoadDi4CQLzHj4TC0c', 'Player'),
+    ('Player 13', 'fixture_player_13', '$argon2id$v=19$m=65536,t=3,p=4$QOmwbDxAxj+O7rMMIrvjBQ$JN514/J3DmRVkkN7t7fia4QQYzoadDi4CQLzHj4TC0c', 'Player'),
+    ('Player 14', 'fixture_player_14', '$argon2id$v=19$m=65536,t=3,p=4$QOmwbDxAxj+O7rMMIrvjBQ$JN514/J3DmRVkkN7t7fia4QQYzoadDi4CQLzHj4TC0c', 'Player');
 
 -- Create two fixture decks for each user.
 INSERT INTO deck (user_id, name, decklist_url)

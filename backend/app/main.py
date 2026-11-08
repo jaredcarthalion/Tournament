@@ -3,8 +3,19 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import Tournament
+from app.crud import get_record, get_records, create_record, update_record, delete_record
+from app.models import User, Deck, PointType, PointInstance, Tournament, Entry
 from app.schemas import TournamentRead, TournamentCreate, TournamentUpdate
+
+
+DELETEABLE_MODELS = {
+    "tournaments": Tournament,
+    "entries": Entry,
+    "users": User,
+    "decks": Deck,
+    "point-types": PointType,
+    "point-instances": PointInstance
+}
 
 
 app = FastAPI()
@@ -12,16 +23,11 @@ app = FastAPI()
 
 @app.get("/tournaments", response_model=list[TournamentRead])
 def get_tournaments(db: Session = Depends(get_db)):
-    statement = select(Tournament).order_by(Tournament.id)
-
-    tournaments = db.scalars(statement).all()
-
-    return tournaments
+    return get_records(db, Tournament, Tournament.id)
 
 @app.get("/tournaments/{tournament_id}", response_model=TournamentRead)
 def get_tournament(tournament_id: int, db: Session = Depends(get_db)):
-    statement = select(Tournament).where(Tournament.id == tournament_id)
-    tournament = db.scalar(statement)
+    tournament = get_record(db, Tournament, tournament_id)
     if tournament is None:
         raise HTTPException(status_code=404, detail="Tournament not found")
     return tournament
@@ -31,19 +37,12 @@ def create_tournament(
     tournament: TournamentCreate,
     db: Session = Depends(get_db),
 ):
-    new_tournament = Tournament(
-        name=tournament.name,
-        games_per_match=tournament.games_per_match,
-        players_per_game=tournament.players_per_game,
-        match_type=tournament.match_type,
-        score_style=tournament.score_style,
-        limited=tournament.limited,
+    new_tournament = create_record(
+        db,
+        Tournament,
+        tournament.model_dump()
     )
-
-    db.add(new_tournament)
     db.commit()
-    db.refresh(new_tournament)
-
     return new_tournament
 
 @app.patch("/tournaments/{tournament_id}", response_model=TournamentRead)
@@ -52,8 +51,7 @@ def update_tournament(
     tournament: TournamentUpdate,
     db: Session = Depends(get_db)
 ):
-    statement = select(Tournament).where(Tournament.id == tournament_id)
-    existing_tournament = db.scalar(statement)
+    existing_tournament = get_record(db, Tournament, tournament_id)
 
     if existing_tournament is None:
         raise HTTPException(status_code=404, detail="Tournament not found")
@@ -80,10 +78,31 @@ def update_tournament(
     if any(field in locked_fields for field in updates) and existing_tournament.state != "Pending":
         raise HTTPException(status_code=409, detail="Cannot update locked fields of a non-pending tournament")
 
-    for field, value in updates.items():
-        setattr(existing_tournament, field, value)
-
+    update_record(db, existing_tournament, updates)
     db.commit()
-    db.refresh(existing_tournament)
-
     return existing_tournament
+
+@app.delete("/admin/delete/{resource}/{record_id}", status_code=204)
+def delete_resource(
+    resource: str,
+    record_id: int,
+    db: Session = Depends(get_db),
+):
+    model = DELETEABLE_MODELS.get(resource)
+
+    if model is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Resource not found or deletion not permitted"
+        )
+
+    record = get_record(db, model, record_id)
+
+    if record is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Record not found"
+        )
+
+    delete_record(db, record)
+    db.commit()

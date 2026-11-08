@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict JeFAQunsx7ZhRZbXWZV8m0U9Wu4cC959dO4s4lRFO4cvljKvYoiDHgCvYdzx789
+\restrict BzpTcEONJX0ljmMIzWcCGVY4bBkjgz3G1wFKyQtffRt9BtwrDpFRnKXqBIUKwn5
 
 -- Dumped from database version 18.6
 -- Dumped by pg_dump version 18.6
 
--- Started on 2026-11-03 09:28:57
+-- Started on 2026-11-08 17:21:17
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -22,7 +22,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- TOC entry 241 (class 1255 OID 16640)
+-- TOC entry 240 (class 1255 OID 16628)
 -- Name: ensure_tournament_consistency(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -59,7 +59,7 @@ $$;
 ALTER FUNCTION public.ensure_tournament_consistency() OWNER TO postgres;
 
 --
--- TOC entry 242 (class 1255 OID 16641)
+-- TOC entry 241 (class 1255 OID 16634)
 -- Name: normalize_username(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -76,7 +76,7 @@ $$;
 ALTER FUNCTION public.normalize_username() OWNER TO postgres;
 
 --
--- TOC entry 243 (class 1255 OID 16642)
+-- TOC entry 239 (class 1255 OID 16621)
 -- Name: prevent_relationship_change(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -100,7 +100,7 @@ $$;
 ALTER FUNCTION public.prevent_relationship_change() OWNER TO postgres;
 
 --
--- TOC entry 255 (class 1255 OID 16643)
+-- TOC entry 253 (class 1255 OID 16636)
 -- Name: validate_point_instance_uniqueness(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -323,7 +323,7 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- TOC entry 221 (class 1259 OID 16644)
+-- TOC entry 220 (class 1259 OID 16390)
 -- Name: app_user; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -331,6 +331,9 @@ CREATE TABLE public.app_user (
     id bigint NOT NULL,
     name character varying(100) NOT NULL,
     username character varying(50) NOT NULL,
+    password_hash character varying(255) NOT NULL,
+    role character varying(20) DEFAULT 'Player'::character varying NOT NULL,
+    CONSTRAINT app_user_role_check CHECK (((role)::text = ANY ((ARRAY['Player'::character varying, 'Organizer'::character varying])::text[]))),
     CONSTRAINT username_must_be_lowercase CHECK (((username)::text = lower((username)::text)))
 );
 
@@ -338,7 +341,7 @@ CREATE TABLE public.app_user (
 ALTER TABLE public.app_user OWNER TO postgres;
 
 --
--- TOC entry 222 (class 1259 OID 16651)
+-- TOC entry 219 (class 1259 OID 16389)
 -- Name: app_user_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -353,7 +356,7 @@ ALTER TABLE public.app_user ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- TOC entry 223 (class 1259 OID 16652)
+-- TOC entry 222 (class 1259 OID 16398)
 -- Name: deck; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -369,7 +372,7 @@ CREATE TABLE public.deck (
 ALTER TABLE public.deck OWNER TO postgres;
 
 --
--- TOC entry 224 (class 1259 OID 16662)
+-- TOC entry 221 (class 1259 OID 16397)
 -- Name: deck_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -384,7 +387,7 @@ ALTER TABLE public.deck ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- TOC entry 225 (class 1259 OID 16663)
+-- TOC entry 234 (class 1259 OID 16528)
 -- Name: game; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -395,14 +398,14 @@ CREATE TABLE public.game (
     winner_match_participant_id bigint,
     created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT valid_game_result CHECK (((((status)::text = 'Pending'::text) AND (winner_match_participant_id IS NULL)) OR ((status)::text = 'Complete'::text) OR (((status)::text = 'Discarded'::text) AND (winner_match_participant_id IS NULL)))),
-    CONSTRAINT valid_game_status CHECK (((status)::text = ANY (ARRAY[('Pending'::character varying)::text, ('Complete'::character varying)::text, ('Discarded'::character varying)::text])))
+    CONSTRAINT valid_game_status CHECK (((status)::text = ANY ((ARRAY['Pending'::character varying, 'Complete'::character varying, 'Discarded'::character varying])::text[])))
 );
 
 
 ALTER TABLE public.game OWNER TO postgres;
 
 --
--- TOC entry 226 (class 1259 OID 16674)
+-- TOC entry 233 (class 1259 OID 16527)
 -- Name: game_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -417,7 +420,7 @@ ALTER TABLE public.game ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- TOC entry 227 (class 1259 OID 16675)
+-- TOC entry 232 (class 1259 OID 16499)
 -- Name: match_participant; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -431,7 +434,7 @@ CREATE TABLE public.match_participant (
 ALTER TABLE public.match_participant OWNER TO postgres;
 
 --
--- TOC entry 228 (class 1259 OID 16681)
+-- TOC entry 231 (class 1259 OID 16498)
 -- Name: match_participant_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -446,7 +449,7 @@ ALTER TABLE public.match_participant ALTER COLUMN id ADD GENERATED ALWAYS AS IDE
 
 
 --
--- TOC entry 229 (class 1259 OID 16682)
+-- TOC entry 238 (class 1259 OID 16582)
 -- Name: point_instance; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -466,7 +469,7 @@ CREATE TABLE public.point_instance (
 ALTER TABLE public.point_instance OWNER TO postgres;
 
 --
--- TOC entry 230 (class 1259 OID 16691)
+-- TOC entry 237 (class 1259 OID 16581)
 -- Name: point_instance_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -481,7 +484,7 @@ ALTER TABLE public.point_instance ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTI
 
 
 --
--- TOC entry 231 (class 1259 OID 16692)
+-- TOC entry 236 (class 1259 OID 16555)
 -- Name: point_type; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -497,16 +500,16 @@ CREATE TABLE public.point_type (
     created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT each_instance_multiple_players CHECK ((((applies)::text <> 'Each instance'::text) OR ((applies_to)::text = 'Multiple players'::text))),
     CONSTRAINT nonnegative_point_value CHECK ((point_value >= (0)::numeric)),
-    CONSTRAINT valid_applies CHECK (((applies)::text = ANY (ARRAY[('Each tournament'::character varying)::text, ('Each match'::character varying)::text, ('Each game'::character varying)::text, ('Each instance'::character varying)::text]))),
-    CONSTRAINT valid_applies_to CHECK (((applies_to)::text = ANY (ARRAY[('One player'::character varying)::text, ('Multiple players'::character varying)::text]))),
-    CONSTRAINT valid_score_style CHECK (((score_style)::text = ANY (ARRAY[('Achievements'::character varying)::text, ('Wins'::character varying)::text])))
+    CONSTRAINT valid_applies CHECK (((applies)::text = ANY ((ARRAY['Each tournament'::character varying, 'Each match'::character varying, 'Each game'::character varying, 'Each instance'::character varying])::text[]))),
+    CONSTRAINT valid_applies_to CHECK (((applies_to)::text = ANY ((ARRAY['One player'::character varying, 'Multiple players'::character varying])::text[]))),
+    CONSTRAINT valid_score_style CHECK (((score_style)::text = ANY ((ARRAY['Achievements'::character varying, 'Wins'::character varying])::text[])))
 );
 
 
 ALTER TABLE public.point_type OWNER TO postgres;
 
 --
--- TOC entry 232 (class 1259 OID 16717)
+-- TOC entry 235 (class 1259 OID 16554)
 -- Name: point_type_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -521,7 +524,7 @@ ALTER TABLE public.point_type ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- TOC entry 233 (class 1259 OID 16718)
+-- TOC entry 224 (class 1259 OID 16416)
 -- Name: tournament; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -535,16 +538,16 @@ CREATE TABLE public.tournament (
     score_style character varying(20) DEFAULT 'Wins'::character varying NOT NULL,
     limited boolean DEFAULT false NOT NULL,
     created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT valid_match_type CHECK (((match_type)::text = ANY (ARRAY[('Ranked'::character varying)::text, ('Random'::character varying)::text]))),
-    CONSTRAINT valid_score_style CHECK (((score_style)::text = ANY (ARRAY[('Wins'::character varying)::text, ('Achievements'::character varying)::text]))),
-    CONSTRAINT valid_tournament_state CHECK (((state)::text = ANY (ARRAY[('Pending'::character varying)::text, ('In progress'::character varying)::text, ('Complete'::character varying)::text])))
+    CONSTRAINT valid_match_type CHECK (((match_type)::text = ANY ((ARRAY['Ranked'::character varying, 'Random'::character varying])::text[]))),
+    CONSTRAINT valid_score_style CHECK (((score_style)::text = ANY ((ARRAY['Wins'::character varying, 'Achievements'::character varying])::text[]))),
+    CONSTRAINT valid_tournament_state CHECK (((state)::text = ANY ((ARRAY['Pending'::character varying, 'In progress'::character varying, 'Complete'::character varying])::text[])))
 );
 
 
 ALTER TABLE public.tournament OWNER TO postgres;
 
 --
--- TOC entry 234 (class 1259 OID 16740)
+-- TOC entry 226 (class 1259 OID 16438)
 -- Name: tournament_entry; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -562,7 +565,7 @@ CREATE TABLE public.tournament_entry (
 ALTER TABLE public.tournament_entry OWNER TO postgres;
 
 --
--- TOC entry 235 (class 1259 OID 16754)
+-- TOC entry 225 (class 1259 OID 16437)
 -- Name: tournament_entry_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -577,7 +580,7 @@ ALTER TABLE public.tournament_entry ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 
 
 --
--- TOC entry 236 (class 1259 OID 16755)
+-- TOC entry 223 (class 1259 OID 16415)
 -- Name: tournament_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -592,7 +595,7 @@ ALTER TABLE public.tournament ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- TOC entry 237 (class 1259 OID 16756)
+-- TOC entry 230 (class 1259 OID 16484)
 -- Name: tournament_match; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -606,7 +609,7 @@ CREATE TABLE public.tournament_match (
 ALTER TABLE public.tournament_match OWNER TO postgres;
 
 --
--- TOC entry 238 (class 1259 OID 16763)
+-- TOC entry 229 (class 1259 OID 16483)
 -- Name: tournament_match_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -621,7 +624,7 @@ ALTER TABLE public.tournament_match ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 
 
 --
--- TOC entry 239 (class 1259 OID 16764)
+-- TOC entry 228 (class 1259 OID 16466)
 -- Name: tournament_round; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -636,7 +639,7 @@ CREATE TABLE public.tournament_round (
 ALTER TABLE public.tournament_round OWNER TO postgres;
 
 --
--- TOC entry 240 (class 1259 OID 16772)
+-- TOC entry 227 (class 1259 OID 16465)
 -- Name: tournament_round_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -651,7 +654,197 @@ ALTER TABLE public.tournament_round ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 
 
 --
--- TOC entry 4843 (class 2606 OID 16774)
+-- TOC entry 5043 (class 0 OID 16390)
+-- Dependencies: 220
+-- Data for Name: app_user; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.app_user (id, name, username, password_hash, role) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5045 (class 0 OID 16398)
+-- Dependencies: 222
+-- Data for Name: deck; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.deck (id, user_id, name, decklist_url, created) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5057 (class 0 OID 16528)
+-- Dependencies: 234
+-- Data for Name: game; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.game (id, status, match_id, winner_match_participant_id, created) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5055 (class 0 OID 16499)
+-- Dependencies: 232
+-- Data for Name: match_participant; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.match_participant (id, match_id, tournament_entry_id) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5061 (class 0 OID 16582)
+-- Dependencies: 238
+-- Data for Name: point_instance; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.point_instance (id, game_id, match_id, tournament_entry_id, point_type_id, created, point_value_override) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5059 (class 0 OID 16555)
+-- Dependencies: 236
+-- Data for Name: point_type; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.point_type (id, active, applies, applies_to, point_value, score_style, title, description, created) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5047 (class 0 OID 16416)
+-- Dependencies: 224
+-- Data for Name: tournament; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.tournament (id, name, state, games_per_match, players_per_game, match_type, score_style, limited, created) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5049 (class 0 OID 16438)
+-- Dependencies: 226
+-- Data for Name: tournament_entry; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.tournament_entry (id, deck_id, tournament_id, points, opponent_match_win, withdrawn, created) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5053 (class 0 OID 16484)
+-- Dependencies: 230
+-- Data for Name: tournament_match; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.tournament_match (id, active, round_id) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5051 (class 0 OID 16466)
+-- Dependencies: 228
+-- Data for Name: tournament_round; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.tournament_round (id, tournament_id, number, active) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5067 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: app_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.app_user_id_seq', 1, false);
+
+
+--
+-- TOC entry 5068 (class 0 OID 0)
+-- Dependencies: 221
+-- Name: deck_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.deck_id_seq', 1, false);
+
+
+--
+-- TOC entry 5069 (class 0 OID 0)
+-- Dependencies: 233
+-- Name: game_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.game_id_seq', 1, false);
+
+
+--
+-- TOC entry 5070 (class 0 OID 0)
+-- Dependencies: 231
+-- Name: match_participant_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.match_participant_id_seq', 1, false);
+
+
+--
+-- TOC entry 5071 (class 0 OID 0)
+-- Dependencies: 237
+-- Name: point_instance_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.point_instance_id_seq', 1, false);
+
+
+--
+-- TOC entry 5072 (class 0 OID 0)
+-- Dependencies: 235
+-- Name: point_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.point_type_id_seq', 1, false);
+
+
+--
+-- TOC entry 5073 (class 0 OID 0)
+-- Dependencies: 225
+-- Name: tournament_entry_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.tournament_entry_id_seq', 1, false);
+
+
+--
+-- TOC entry 5074 (class 0 OID 0)
+-- Dependencies: 223
+-- Name: tournament_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.tournament_id_seq', 1, false);
+
+
+--
+-- TOC entry 5075 (class 0 OID 0)
+-- Dependencies: 229
+-- Name: tournament_match_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.tournament_match_id_seq', 1, false);
+
+
+--
+-- TOC entry 5076 (class 0 OID 0)
+-- Dependencies: 227
+-- Name: tournament_round_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.tournament_round_id_seq', 1, false);
+
+
+--
+-- TOC entry 4843 (class 2606 OID 16396)
 -- Name: app_user app_user_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -660,7 +853,7 @@ ALTER TABLE ONLY public.app_user
 
 
 --
--- TOC entry 4847 (class 2606 OID 16776)
+-- TOC entry 4847 (class 2606 OID 16409)
 -- Name: deck deck_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -669,7 +862,7 @@ ALTER TABLE ONLY public.deck
 
 
 --
--- TOC entry 4849 (class 2606 OID 16778)
+-- TOC entry 4867 (class 2606 OID 16539)
 -- Name: game game_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -678,7 +871,7 @@ ALTER TABLE ONLY public.game
 
 
 --
--- TOC entry 4852 (class 2606 OID 16780)
+-- TOC entry 4861 (class 2606 OID 16506)
 -- Name: match_participant match_participant_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -687,7 +880,7 @@ ALTER TABLE ONLY public.match_participant
 
 
 --
--- TOC entry 4858 (class 2606 OID 16782)
+-- TOC entry 4872 (class 2606 OID 16592)
 -- Name: point_instance point_instance_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -696,7 +889,7 @@ ALTER TABLE ONLY public.point_instance
 
 
 --
--- TOC entry 4860 (class 2606 OID 16784)
+-- TOC entry 4870 (class 2606 OID 16580)
 -- Name: point_type point_type_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -705,7 +898,7 @@ ALTER TABLE ONLY public.point_type
 
 
 --
--- TOC entry 4864 (class 2606 OID 16786)
+-- TOC entry 4851 (class 2606 OID 16453)
 -- Name: tournament_entry tournament_entry_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -714,7 +907,7 @@ ALTER TABLE ONLY public.tournament_entry
 
 
 --
--- TOC entry 4867 (class 2606 OID 16788)
+-- TOC entry 4859 (class 2606 OID 16492)
 -- Name: tournament_match tournament_match_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -723,7 +916,7 @@ ALTER TABLE ONLY public.tournament_match
 
 
 --
--- TOC entry 4862 (class 2606 OID 16790)
+-- TOC entry 4849 (class 2606 OID 16436)
 -- Name: tournament tournament_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -732,7 +925,7 @@ ALTER TABLE ONLY public.tournament
 
 
 --
--- TOC entry 4869 (class 2606 OID 16792)
+-- TOC entry 4854 (class 2606 OID 16475)
 -- Name: tournament_round tournament_round_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -741,7 +934,7 @@ ALTER TABLE ONLY public.tournament_round
 
 
 --
--- TOC entry 4871 (class 2606 OID 16794)
+-- TOC entry 4856 (class 2606 OID 16477)
 -- Name: tournament_round tournament_round_tournament_id_number_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -750,7 +943,7 @@ ALTER TABLE ONLY public.tournament_round
 
 
 --
--- TOC entry 4845 (class 2606 OID 16796)
+-- TOC entry 4845 (class 2606 OID 16632)
 -- Name: app_user unique_app_user_username; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -759,7 +952,7 @@ ALTER TABLE ONLY public.app_user
 
 
 --
--- TOC entry 4854 (class 2606 OID 16798)
+-- TOC entry 4863 (class 2606 OID 16614)
 -- Name: match_participant unique_match_participant; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -768,7 +961,7 @@ ALTER TABLE ONLY public.match_participant
 
 
 --
--- TOC entry 4856 (class 2606 OID 16800)
+-- TOC entry 4865 (class 2606 OID 16526)
 -- Name: match_participant unique_match_participant_entry; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -777,7 +970,7 @@ ALTER TABLE ONLY public.match_participant
 
 
 --
--- TOC entry 4865 (class 1259 OID 16801)
+-- TOC entry 4852 (class 1259 OID 16464)
 -- Name: unique_active_tournament_entry; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -785,7 +978,7 @@ CREATE UNIQUE INDEX unique_active_tournament_entry ON public.tournament_entry US
 
 
 --
--- TOC entry 4850 (class 1259 OID 17082)
+-- TOC entry 4868 (class 1259 OID 17083)
 -- Name: unique_pending_game_per_match; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -793,7 +986,7 @@ CREATE UNIQUE INDEX unique_pending_game_per_match ON public.game USING btree (ma
 
 
 --
--- TOC entry 4872 (class 1259 OID 17084)
+-- TOC entry 4857 (class 1259 OID 17085)
 -- Name: unique_tournament_active_round; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -801,7 +994,7 @@ CREATE UNIQUE INDEX unique_tournament_active_round ON public.tournament_round US
 
 
 --
--- TOC entry 4888 (class 2620 OID 16802)
+-- TOC entry 4890 (class 2620 OID 16629)
 -- Name: match_participant ensure_tournament_consistency; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -809,7 +1002,7 @@ CREATE TRIGGER ensure_tournament_consistency BEFORE INSERT ON public.match_parti
 
 
 --
--- TOC entry 4886 (class 2620 OID 16803)
+-- TOC entry 4886 (class 2620 OID 16635)
 -- Name: app_user normalize_username; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -817,7 +1010,7 @@ CREATE TRIGGER normalize_username BEFORE INSERT OR UPDATE OF username ON public.
 
 
 --
--- TOC entry 4887 (class 2620 OID 16804)
+-- TOC entry 4893 (class 2620 OID 16622)
 -- Name: game prevent_game_match_change; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -825,7 +1018,7 @@ CREATE TRIGGER prevent_game_match_change BEFORE UPDATE ON public.game FOR EACH R
 
 
 --
--- TOC entry 4893 (class 2620 OID 16805)
+-- TOC entry 4889 (class 2620 OID 16625)
 -- Name: tournament_match prevent_match_round_change; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -833,7 +1026,7 @@ CREATE TRIGGER prevent_match_round_change BEFORE UPDATE ON public.tournament_mat
 
 
 --
--- TOC entry 4889 (class 2620 OID 16806)
+-- TOC entry 4891 (class 2620 OID 16627)
 -- Name: match_participant prevent_participant_entry_change; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -841,7 +1034,7 @@ CREATE TRIGGER prevent_participant_entry_change BEFORE UPDATE ON public.match_pa
 
 
 --
--- TOC entry 4890 (class 2620 OID 16807)
+-- TOC entry 4892 (class 2620 OID 16626)
 -- Name: match_participant prevent_participant_match_change; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -849,7 +1042,7 @@ CREATE TRIGGER prevent_participant_match_change BEFORE UPDATE ON public.match_pa
 
 
 --
--- TOC entry 4894 (class 2620 OID 16808)
+-- TOC entry 4888 (class 2620 OID 16624)
 -- Name: tournament_round prevent_round_tournament_change; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -857,7 +1050,7 @@ CREATE TRIGGER prevent_round_tournament_change BEFORE UPDATE ON public.tournamen
 
 
 --
--- TOC entry 4892 (class 2620 OID 16809)
+-- TOC entry 4887 (class 2620 OID 16623)
 -- Name: tournament_entry prevent_tournament_change; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -865,7 +1058,7 @@ CREATE TRIGGER prevent_tournament_change BEFORE UPDATE ON public.tournament_entr
 
 
 --
--- TOC entry 4891 (class 2620 OID 16810)
+-- TOC entry 4894 (class 2620 OID 16637)
 -- Name: point_instance trg_validate_point_instance; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -873,7 +1066,7 @@ CREATE TRIGGER trg_validate_point_instance BEFORE INSERT ON public.point_instanc
 
 
 --
--- TOC entry 4873 (class 2606 OID 16811)
+-- TOC entry 4873 (class 2606 OID 16410)
 -- Name: deck deck_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -882,7 +1075,7 @@ ALTER TABLE ONLY public.deck
 
 
 --
--- TOC entry 4874 (class 2606 OID 16816)
+-- TOC entry 4880 (class 2606 OID 16540)
 -- Name: game game_match_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -891,7 +1084,7 @@ ALTER TABLE ONLY public.game
 
 
 --
--- TOC entry 4875 (class 2606 OID 16821)
+-- TOC entry 4881 (class 2606 OID 16615)
 -- Name: game game_winner_same_match_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -900,7 +1093,7 @@ ALTER TABLE ONLY public.game
 
 
 --
--- TOC entry 4876 (class 2606 OID 16826)
+-- TOC entry 4878 (class 2606 OID 16509)
 -- Name: match_participant match_participant_match_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -909,7 +1102,7 @@ ALTER TABLE ONLY public.match_participant
 
 
 --
--- TOC entry 4877 (class 2606 OID 16831)
+-- TOC entry 4879 (class 2606 OID 16520)
 -- Name: match_participant match_participant_tournament_entry_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -918,7 +1111,7 @@ ALTER TABLE ONLY public.match_participant
 
 
 --
--- TOC entry 4878 (class 2606 OID 16836)
+-- TOC entry 4882 (class 2606 OID 16593)
 -- Name: point_instance point_instance_game_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -927,7 +1120,7 @@ ALTER TABLE ONLY public.point_instance
 
 
 --
--- TOC entry 4879 (class 2606 OID 16841)
+-- TOC entry 4883 (class 2606 OID 16598)
 -- Name: point_instance point_instance_match_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -936,7 +1129,7 @@ ALTER TABLE ONLY public.point_instance
 
 
 --
--- TOC entry 4880 (class 2606 OID 16846)
+-- TOC entry 4884 (class 2606 OID 16608)
 -- Name: point_instance point_instance_point_type_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -945,7 +1138,7 @@ ALTER TABLE ONLY public.point_instance
 
 
 --
--- TOC entry 4881 (class 2606 OID 16851)
+-- TOC entry 4885 (class 2606 OID 16603)
 -- Name: point_instance point_instance_tournament_entry_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -954,7 +1147,7 @@ ALTER TABLE ONLY public.point_instance
 
 
 --
--- TOC entry 4882 (class 2606 OID 16856)
+-- TOC entry 4874 (class 2606 OID 16454)
 -- Name: tournament_entry tournament_entry_deck_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -963,7 +1156,7 @@ ALTER TABLE ONLY public.tournament_entry
 
 
 --
--- TOC entry 4883 (class 2606 OID 16861)
+-- TOC entry 4875 (class 2606 OID 16459)
 -- Name: tournament_entry tournament_entry_tournament_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -972,7 +1165,7 @@ ALTER TABLE ONLY public.tournament_entry
 
 
 --
--- TOC entry 4884 (class 2606 OID 16866)
+-- TOC entry 4877 (class 2606 OID 16493)
 -- Name: tournament_match tournament_match_round_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -981,7 +1174,7 @@ ALTER TABLE ONLY public.tournament_match
 
 
 --
--- TOC entry 4885 (class 2606 OID 16871)
+-- TOC entry 4876 (class 2606 OID 16478)
 -- Name: tournament_round tournament_round_tournament_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -989,11 +1182,11 @@ ALTER TABLE ONLY public.tournament_round
     ADD CONSTRAINT tournament_round_tournament_id_fkey FOREIGN KEY (tournament_id) REFERENCES public.tournament(id);
 
 
--- Completed on 2026-11-03 09:28:57
+-- Completed on 2026-11-08 17:21:17
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict JeFAQunsx7ZhRZbXWZV8m0U9Wu4cC959dO4s4lRFO4cvljKvYoiDHgCvYdzx789
+\unrestrict BzpTcEONJX0ljmMIzWcCGVY4bBkjgz3G1wFKyQtffRt9BtwrDpFRnKXqBIUKwn5
 
